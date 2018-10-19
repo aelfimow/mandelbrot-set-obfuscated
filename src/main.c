@@ -13,9 +13,13 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
 {
+    MSG msg;
+    int msgres = 0;
+    void *loc = NULL;
+    HWND hWindow = NULL;
+
     hPrevInstance = hPrevInstance;
     szCmdLine = szCmdLine;
-    iCmdShow = iCmdShow;
 
     WNDCLASS wndclass;
     memset(&wndclass, 0, sizeof(wndclass));
@@ -33,13 +37,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
     __auto_type RegisterClassResult = RegisterClass(&wndclass);
 
-    if (0 == RegisterClassResult)
-    {
-        MessageBox_Error(TEXT("Error in RegisterClass"));
-        return 0;
-    }
+    loc = (RegisterClassResult == 0) ? &&RegisterClassError : &&RegisterClassOk;
+    goto *loc;
 
-    __auto_type hWindow = CreateWindow(
+RegisterClassOk:
+    hWindow = CreateWindow(
             MainWindowName,
             MainWindowName,
             WS_OVERLAPPEDWINDOW,
@@ -52,39 +54,51 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
             hInstance,
             NULL);
 
-    if (hWindow == NULL)
-    {
-        MessageBox_Error(TEXT("Error in CreateWindow"));
-        return 0;
-    }
+    loc = (hWindow == NULL) ? &&CreateWindowError : &&CreateWindowOk;
+    goto *loc;
 
+CreateWindowOk:
     ShowWindow(hWindow, iCmdShow);
 
     __auto_type UpdateWindowResult = UpdateWindow(hWindow);
 
-    if (UpdateWindowResult == FALSE)
-    {
-        MessageBox_Error(TEXT("Error in UpdateWindow"));
-        return 0;
-    }
+    loc = (UpdateWindowResult == FALSE) ? &&UpdateWindowError : &&UpdateWindowOk;
+    goto *loc;
 
-    MSG msg;
-    __auto_type msgres = GetMessage(&msg, NULL, 0, 0);
+UpdateWindowOk:
+    msgres = GetMessage(&msg, NULL, 0, 0);
 
-    while ((msgres != 0) && (msgres != -1))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+loop_start:
+    loc = ((msgres != 0) && (msgres != -1)) ? NULL : &&loop_end;
+    goto_if_valid(loc);
 
-        msgres = GetMessage(&msg, NULL, 0, 0);
-    }
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
 
-    if (msgres == -1)
-    {
-        MessageBox_Error(TEXT("Error in GetMessage"));
-        return 0;
-    }
+    msgres = GetMessage(&msg, NULL, 0, 0);
+    goto loop_start;
 
+loop_end:
+
+    loc = (msgres == -1) ? &&GetMessageError : NULL;
+    goto_if_valid(loc);
+
+    return 0;
+
+UpdateWindowError:
+    MessageBox_Error(TEXT("Error in UpdateWindow"));
+    return 0;
+
+CreateWindowError:
+    MessageBox_Error(TEXT("Error in CreateWindow"));
+    return 0;
+
+RegisterClassError:
+    MessageBox_Error(TEXT("Error in RegisterClass"));
+    return 0;
+
+GetMessageError:
+    MessageBox_Error(TEXT("Error in GetMessage"));
     return 0;
 }
 
