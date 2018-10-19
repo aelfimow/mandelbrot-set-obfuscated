@@ -15,7 +15,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 {
     MSG msg;
     int msgres = 0;
-    void *loc = NULL;
+    void *next = NULL;
     HWND hWindow = NULL;
 
     hPrevInstance = hPrevInstance;
@@ -37,8 +37,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
     __auto_type RegisterClassResult = RegisterClass(&wndclass);
 
-    loc = (RegisterClassResult == 0) ? &&RegisterClassError : &&RegisterClassOk;
-    goto *loc;
+    next = (RegisterClassResult == 0) ? &&RegisterClassError : &&RegisterClassOk;
+    goto *next;
 
 RegisterClassOk:
     hWindow = CreateWindow(
@@ -54,23 +54,23 @@ RegisterClassOk:
             hInstance,
             NULL);
 
-    loc = (hWindow == NULL) ? &&CreateWindowError : &&CreateWindowOk;
-    goto *loc;
+    next = (hWindow == NULL) ? &&CreateWindowError : &&CreateWindowOk;
+    goto *next;
 
 CreateWindowOk:
     ShowWindow(hWindow, iCmdShow);
 
     __auto_type UpdateWindowResult = UpdateWindow(hWindow);
 
-    loc = (UpdateWindowResult == FALSE) ? &&UpdateWindowError : &&UpdateWindowOk;
-    goto *loc;
+    next = (UpdateWindowResult == FALSE) ? &&UpdateWindowError : &&UpdateWindowOk;
+    goto *next;
 
 UpdateWindowOk:
     msgres = GetMessage(&msg, NULL, 0, 0);
 
 loop_start:
-    loc = ((msgres != 0) && (msgres != -1)) ? NULL : &&loop_end;
-    goto_if_valid(loc);
+    next = ((msgres != 0) && (msgres != -1)) ? NULL : &&loop_end;
+    goto_if_valid(next);
 
     TranslateMessage(&msg);
     DispatchMessage(&msg);
@@ -80,8 +80,8 @@ loop_start:
 
 loop_end:
 
-    loc = (msgres == -1) ? &&GetMessageError : NULL;
-    goto_if_valid(loc);
+    next = (msgres == -1) ? &&GetMessageError : NULL;
+    goto_if_valid(next);
 
     return 0;
 
@@ -125,22 +125,22 @@ static HMENU MainWindowMenu(void)
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     PAINTSTRUCT ps;
-    void *handler = NULL;
+    void *next = NULL;
 
-    handler = (message == WM_SIZE) ? &&WM_SIZE_Handler : NULL;
-    goto_if_valid(handler);
+    next = (message == WM_SIZE) ? &&WM_SIZE_Handler : NULL;
+    goto_if_valid(next);
 
-    handler = (message == WM_CREATE) ? &&WM_CREATE_Handler : NULL;
-    goto_if_valid(handler);
+    next = (message == WM_CREATE) ? &&WM_CREATE_Handler : NULL;
+    goto_if_valid(next);
 
-    handler = (message == WM_COMMAND) ? &&WM_COMMAND_Handler : NULL;
-    goto_if_valid(handler);
+    next = (message == WM_COMMAND) ? &&WM_COMMAND_Handler : NULL;
+    goto_if_valid(next);
 
-    handler = (message == WM_DESTROY) ? &&WM_DESTROY_Handler : NULL;
-    goto_if_valid(handler);
+    next = (message == WM_DESTROY) ? &&WM_DESTROY_Handler : NULL;
+    goto_if_valid(next);
 
-    handler = (message == WM_PAINT) ? &&WM_PAINT_Handler : NULL;
-    goto_if_valid(handler);
+    next = (message == WM_PAINT) ? &&WM_PAINT_Handler : NULL;
+    goto_if_valid(next);
 
     return DefWindowProc(hwnd, message, wParam, lParam);
 
@@ -157,8 +157,8 @@ WM_PAINT_Handler:
     return 0;
 
 WM_COMMAND_Handler:
-    handler = (IDM_APP_EXIT == LOWORD(wParam)) ? &&AppExitCommand : NULL;
-    goto_if_valid(handler);
+    next = (IDM_APP_EXIT == LOWORD(wParam)) ? &&AppExitCommand : NULL;
+    goto_if_valid(next);
     return 0;
 
 WM_SIZE_Handler:
