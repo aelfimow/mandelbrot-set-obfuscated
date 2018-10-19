@@ -1,7 +1,9 @@
 #include <Windows.h>
 #include <string.h>
 
-#define IDM_APP_EXIT    40000
+#define IDM_APP_EXIT        40000
+
+#define goto_if_valid(p)    do { if (p != NULL) goto *p; } while (0)
 
 static const TCHAR MainWindowName[] = TEXT("Mandelbrot Set");
 
@@ -91,5 +93,41 @@ static HMENU MainWindowMenu(void)
 
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    PAINTSTRUCT ps;
+    void *handler = NULL;
+
+    handler = (message == WM_SIZE) ? &&WM_SIZE_Handler : NULL;
+    goto_if_valid(handler);
+
+    handler = (message == WM_CREATE) ? &&WM_CREATE_Handler : NULL;
+    goto_if_valid(handler);
+
+    handler = (message == WM_COMMAND) ? &&WM_COMMAND_Handler : NULL;
+    goto_if_valid(handler);
+
+    handler = (message == WM_DESTROY) ? &&WM_DESTROY_Handler : NULL;
+    goto_if_valid(handler);
+
+    handler = (message == WM_PAINT) ? &&WM_PAINT_Handler : NULL;
+    goto_if_valid(handler);
+
     return DefWindowProc(hwnd, message, wParam, lParam);
+
+WM_CREATE_Handler:
+    return 0;
+
+WM_DESTROY_Handler:
+    PostQuitMessage(0);
+    return 0;
+
+WM_PAINT_Handler:
+    (void)BeginPaint(hwnd, &ps);
+    EndPaint(hwnd, &ps);
+    return 0;
+
+WM_COMMAND_Handler:
+    return 0;
+
+WM_SIZE_Handler:
+    return 0;
 }
