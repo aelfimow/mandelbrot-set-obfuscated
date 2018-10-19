@@ -68,6 +68,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
         return 0;
     }
 
+    MSG msg;
+    __auto_type msgres = GetMessage(&msg, NULL, 0, 0);
+
+    while ((msgres != 0) && (msgres != -1))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+
+        msgres = GetMessage(&msg, NULL, 0, 0);
+    }
+
+    if (msgres == -1)
+    {
+        MessageBox_Error(TEXT("Error in GetMessage"));
+        return 0;
+    }
+
     return 0;
 }
 
@@ -126,8 +143,14 @@ WM_PAINT_Handler:
     return 0;
 
 WM_COMMAND_Handler:
+    handler = (IDM_APP_EXIT == LOWORD(wParam)) ? &&AppExitCommand : NULL;
+    goto_if_valid(handler);
     return 0;
 
 WM_SIZE_Handler:
+    return 0;
+
+AppExitCommand:
+    PostMessage(hwnd, WM_CLOSE, 0, 0);
     return 0;
 }
