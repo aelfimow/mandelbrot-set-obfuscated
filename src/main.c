@@ -184,7 +184,6 @@ is_bounded_case:
     SetPixel(hdc, x, y, rgb);
 
 is_unbounded_case:
-    SetPixel(hdc, x, y, rgb);
 
     ++y;
     next = (y < max_y) ? &&loop_y_start : &&loop_y_end;
