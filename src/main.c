@@ -110,14 +110,10 @@ static void MessageBox_Error(const TCHAR *errStr)
 static HMENU MainWindowMenu(void)
 {
     __auto_type hCtrlMenu = CreateMenu();
-    {
-        AppendMenu(hCtrlMenu, MF_STRING, IDM_APP_EXIT, TEXT("&Exit"));
-    }
+    AppendMenu(hCtrlMenu, MF_STRING, IDM_APP_EXIT, TEXT("&Exit"));
 
     __auto_type hMenu = CreateMenu();
-    {
-        AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hCtrlMenu, TEXT("&File"));
-    }
+    AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hCtrlMenu, TEXT("&File"));
 
     return hMenu;
 }
