@@ -1,6 +1,8 @@
 #include <Windows.h>
 #include <string.h>
 
+#include "mandelbrot_check.h"
+
 #define IDM_APP_EXIT        40000
 
 #define goto_if_valid(p)    do { if (p != NULL) goto *p; } while (0)
@@ -10,8 +12,6 @@ static const TCHAR MainWindowName[] = TEXT("Mandelbrot Set");
 static void MessageBox_Error(const TCHAR *errStr);
 static HMENU MainWindowMenu(void);
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-
-static int is_bounded(_Complex double value);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
 {
@@ -122,8 +122,8 @@ static HMENU MainWindowMenu(void)
 
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static const double Limit_Re[2] = { -2.0, +1.0 };
-    static const double Limit_Im[2] = { -1.0, +1.0 };
+    static const double Limit_Re[2] = { -3.0, +3.0 };
+    static const double Limit_Im[2] = { -3.0, +3.0 };
 
     static double step_x = 0.0;
     static double step_y = 0.0;
@@ -132,6 +132,9 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
     static int max_y = 0;
     int x = 0;
     int y = 0;
+
+    double re = 0.0;
+    double im = 0.0;
 
     HDC hdc = NULL;
     PAINTSTRUCT ps;
@@ -165,19 +168,18 @@ WM_PAINT_Handler:
     hdc = BeginPaint(hwnd, &ps);
 
     const COLORREF rgb = RGB(0, 0, 0);
-    _Complex c;
-    __real__ c = Limit_Re[0];
-    __imag__ c = Limit_Im[0];
+    re = Limit_Re[0];
 
     x = 0;
 loop_x_start:
 
     y = 0;
+    im = Limit_Im[0];
 loop_y_start:
 
-    __imag__ c += step_y;
+    im += step_y;
 
-    next = (0 != is_bounded(c)) ? &&is_bounded_case : &&is_unbounded_case;
+    next = (0 != mandelbrot_check(re, im)) ? &&is_bounded_case : &&is_unbounded_case;
     goto *next;
 
 is_bounded_case:
@@ -190,7 +192,7 @@ is_unbounded_case:
     goto *next;
 loop_y_end:
 
-    __real__ c += step_x;
+    re += step_x;
     ++x;
     next = (x < max_x) ? &&loop_x_start : &&loop_x_end;
     goto *next;
@@ -216,39 +218,5 @@ WM_SIZE_Handler:
 
 AppExitCommand:
     PostMessage(hwnd, WM_CLOSE, 0, 0);
-    return 0;
-}
-
-static int is_bounded(_Complex double value)
-{
-    _Complex double z = 0.0 + 0.0j;
-    double result = 0.0;
-    double x = 0.0;
-    double y = 0.0;
-    void *next = NULL;
-    int count = 0;
-
-count_start:
-    x = (__real__ z * __real__ z) - (__imag__ z * __imag__ z) + __real__ value;
-
-    y = (2.0 * __real__ z * __imag__ z) + __imag__ value;
-
-    result = (x * x) + (y * y);
-
-    next = (result > 4.0) ? &&not_bounded : &&bounded;
-    goto *next;
-
-bounded:
-    __real__ z = x;
-    __imag__ z = y;
-
-    ++count;
-    next = (count < 100) ? &&count_start : &&count_end;
-    goto *next;
-
-count_end:
-    return 1;
-
-not_bounded:
     return 0;
 }
