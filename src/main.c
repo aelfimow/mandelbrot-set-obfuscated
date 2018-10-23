@@ -174,10 +174,10 @@ WM_PAINT_Handler:
 loop_x_start:
 
     y = 0;
-    im = Limit_Im[0];
+    im = Limit_Im[1];
 loop_y_start:
 
-    im += step_y;
+    im -= step_y;
 
     next = (0 != mandelbrot_check(re, im)) ? &&is_bounded_case : &&is_unbounded_case;
     goto *next;
