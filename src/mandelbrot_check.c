@@ -15,25 +15,30 @@ int mandelbrot_check(double re, double im)
     struct number zn = { .re = 0.0, .im = 0.0 };
     struct number zn1 = { .re = 0.0, .im = 0.0 };
     double d = 0.0;
+    void *label = 0;
     int count = 0;
 
-    while (count < 100)
-    {
-        zn1 = compute(zn, c);
+loop_start:
+    zn1 = compute(zn, c);
 
-        d = distance(zn1);
+    d = distance(zn1);
 
-        if (d > 4.0)
-        {
-            return 0;
-        }
+    label = (d > 4.0) ? &&limit_reached : &&limit_not_reached;
+    goto *label;
 
-        zn = zn1;
+limit_not_reached:
+    zn = zn1;
 
-        ++count;
-    }
+    ++count;
 
+    label = (count < 100) ? &&loop_start : &&loop_end;
+    goto *label;
+
+loop_end:
     return 1;
+
+limit_reached:
+    return 0;
 }
 
 static struct number compute(struct number zn, struct number c)
