@@ -122,8 +122,8 @@ static HMENU MainWindowMenu(void)
 
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static const double Limit_Re[2] = { -3.0, +3.0 };
-    static const double Limit_Im[2] = { -3.0, +3.0 };
+    static const double Limit_Re[2] = { -2.0, +1.0 };
+    static const double Limit_Im[2] = { -1.0, +1.0 };
 
     static double step_x = 0.0;
     static double step_y = 0.0;

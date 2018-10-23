@@ -15,14 +15,22 @@ int mandelbrot_check(double re, double im)
     struct number zn = { .re = 0.0, .im = 0.0 };
     struct number zn1 = { .re = 0.0, .im = 0.0 };
     double d = 0.0;
+    int count = 0;
 
-    zn1 = compute(zn, c);
-
-    d = distance(zn1);
-
-    if (d > 4.0)
+    while (count < 100)
     {
-        return 0;
+        zn1 = compute(zn, c);
+
+        d = distance(zn1);
+
+        if (d > 4.0)
+        {
+            return 0;
+        }
+
+        zn = zn1;
+
+        ++count;
     }
 
     return 1;
