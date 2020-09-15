@@ -7,5 +7,7 @@ CFLAGS += -Wextra
 CFLAGS += -O2
 CFLAGS += -m64
 
+ALL_FILES = $(wildcard *.c)
+
 all:
-	gcc *.c -o mandelbrot-set-obfuscated.exe ${CFLAGS}
+	gcc $(ALL_FILES) -o mandelbrot-set-obfuscated.exe $(CFLAGS)
